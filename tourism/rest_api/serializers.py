@@ -2,6 +2,11 @@ from .models import *
 from rest_framework import serializers
 
 
+'''
+Here are all serializers based on corresponding models that are needed for REST API
+'''
+
+
 class PerevalAddedSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = PerevalAdded
@@ -16,6 +21,8 @@ class PerevalAreasSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class PerevalImagesSerializer(serializers.HyperlinkedModelSerializer):
+    pereval_id = serializers.StringRelatedField()
+
     class Meta:
         model = PerevalImages
         fields = ['id', 'img', 'title', 'date_added', 'pereval_id']
@@ -23,14 +30,17 @@ class PerevalImagesSerializer(serializers.HyperlinkedModelSerializer):
 
 class SprActivitiesTypesSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
+        model = SprActivitiesTypes
         fields = ['id', 'title']
 
 
 class CoordsSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
+        model = Coords
         fields = ['id', 'latitude', 'longtitude', 'height']
 
 
 class UsersSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
+        model = Users
         fields = ['id', 'name', 'fam', 'otc', 'email']

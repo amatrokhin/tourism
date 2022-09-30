@@ -19,6 +19,7 @@ from rest_framework import routers
 from rest_api import views
 
 
+# register links for serializers
 router = routers.DefaultRouter()
 router.register(r'pereval_added', views.PerevalAddedViewset, basename='pereval_added')
 router.register(r'pereval_areas', views.PerevalAreasViewset, basename='pereval_areas')
@@ -31,4 +32,5 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include(router.urls)),  # inclide links for REST API
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
+    path('', include('rest_api.urls'))
 ]

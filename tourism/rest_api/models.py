@@ -11,10 +11,10 @@ LEVELS = (
 )
 
 STATUSES = (
-    ('new', 'new'),
-    ('pending', 'pending'),
-    ('accepted', 'accepted'),
-    ('rejected', 'rejected')
+    ('new', 'Новое'),
+    ('pending', 'В обработке'),
+    ('accepted', 'Принято'),
+    ('rejected', 'Отклонено')
 )
 
 
@@ -25,12 +25,12 @@ class PerevalAdded(models.Model):                           # basic table for pa
     connect = models.CharField(max_length=50, null=True)
     date_added = models.DateTimeField(auto_now_add=True)
     add_time = models.CharField(max_length=50)
-    coord_id = models.ForeignKey('Coords', null=True, on_delete=models.SET_NULL)
+    coords = models.ForeignKey('Coords', null=True, on_delete=models.SET_NULL)
     level_winter = models.CharField(max_length=2, choices=LEVELS, null=True)
     level_summer = models.CharField(max_length=2, choices=LEVELS, null=True)
     level_autumn = models.CharField(max_length=2, choices=LEVELS, null=True)
     level_spring = models.CharField(max_length=2, choices=LEVELS, null=True)
-    user_id = models.ForeignKey('Users', null=True, on_delete=models.SET_NULL)
+    user = models.ForeignKey('Users', null=True, on_delete=models.SET_NULL)
     status = models.CharField(max_length=8, choices=STATUSES, default='new')
 
     def __str__(self):
@@ -43,10 +43,10 @@ class PerevalAreas(models.Model):                           # passes areas
 
 
 class PerevalImages(models.Model):                          # images of passes
-    img = models.BinaryField()
+    data = models.BinaryField()
     title = models.CharField(max_length=50)
     date_added = models.DateTimeField(auto_now_add=True)
-    pereval_id = models.ForeignKey(PerevalAdded, on_delete=models.CASCADE)
+    pereval = models.ForeignKey(PerevalAdded, on_delete=models.CASCADE)
 
 
 class SprActivitiesTypes(models.Model):                     # other activities

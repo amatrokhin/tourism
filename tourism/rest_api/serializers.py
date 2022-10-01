@@ -10,8 +10,8 @@ Here are all serializers based on corresponding models that are needed for REST 
 class PerevalAddedSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = PerevalAdded
-        fields = ['id', 'beautyTitle', 'title', 'other_titles', 'connect', 'date_added', 'add_time', 'coord_id', 'level_winter',
-                  'level_summer', 'level_autumn', 'level_spring', 'user_id', 'status']
+        fields = ['id', 'beautyTitle', 'title', 'other_titles', 'connect', 'date_added', 'add_time', 'coords', 'level_winter',
+                  'level_summer', 'level_autumn', 'level_spring', 'user', 'status']
 
 
 class PerevalAreasSerializer(serializers.HyperlinkedModelSerializer):
@@ -21,11 +21,11 @@ class PerevalAreasSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class PerevalImagesSerializer(serializers.HyperlinkedModelSerializer):
-    pereval_id = serializers.StringRelatedField()
+    pereval = serializers.StringRelatedField()
 
     class Meta:
         model = PerevalImages
-        fields = ['id', 'img', 'title', 'date_added', 'pereval_id']
+        fields = ['id', 'data', 'title', 'date_added', 'pereval']
 
 
 class SprActivitiesTypesSerializer(serializers.HyperlinkedModelSerializer):

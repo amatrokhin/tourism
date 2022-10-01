@@ -58,6 +58,14 @@ class Coords(models.Model):                                 # coordinates of pas
     longtitude = models.CharField(max_length=10)
     height = models.CharField(max_length=10)
 
+    def natural_key(self):                                  # for beautiful serialization
+        coords = {
+            'latitude': self.latitude,
+            'longtitude': self.longtitude,
+            'height': self.height
+        }
+        return coords
+
 
 class Users(models.Model):                                  # for storing app users in DB
     name = models.CharField(max_length=30, null=True)

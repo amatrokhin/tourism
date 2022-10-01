@@ -46,48 +46,59 @@ class UsersViewset(viewsets.ModelViewSet):
 
 
 @csrf_exempt
-def submitData(request):                            # base post method for adding passes
+def submitData(request):                            # base post method for adding passes and get for returning them
     try:
-        data = request.body
-        data = json.loads(data.decode("utf-8"))     # decoding is needed, because originally its bytes
+        # if GET method, then return list with parameters, specifically authors passes
+        if request.method == 'GET':
+            perevals = PerevalAdded.objects.filter(user__email=request.GET['user__email'])
 
-        # create all instances in DB
-        # get or create returns tuple: (object, created -> True, False)
-        coords = Coords.objects.get_or_create(
-            latitude=data.get('coords').get('latitude'),
-            longtitude=data.get('coords').get('longtitude'),
-            height=data.get('coords').get('height')
-        )
+            # use natural key to serialize fields of coords
+            data = serialize('json', perevals, use_natural_foreign_keys=True)
 
-        user = Users.objects.get_or_create(
-            name=data.get('user').get('name'),
-            fam=data.get('user').get('fam'),
-            otc=data.get('user').get('otc'),
-            email=data.get('user').get('email'),
-            phone=data.get('user').get('phone')
-        )
+            return HttpResponse(content=data, status=200)
 
-        pereval = PerevalAdded.objects.get_or_create(
-            beautyTitle=data.get('beauty_title', 'пер. '),
-            title=data.get('title'),
-            other_titles=data.get('other_titles'),
-            connect=data.get('connect'),
-            add_time=data.get('add_time'),
-            coords=coords[0],
-            level_winter=data.get('level').get('winter'),
-            level_summer=data.get('level').get('summer'),
-            level_autumn=data.get('level').get('autumn'),
-            level_spring=data.get('level').get('spring'),
-            user=user[0],
-            status='new'
-        )
+        # if POST method, then create a new pass
+        elif request.method == 'POST':
+            data = request.body
+            data = json.loads(data.decode("utf-8"))     # decoding is needed, because originally its bytes
 
-        for image in data.get('images'):
-            PerevalImages.objects.get_or_create(
-                img=image.get('data'),
-                title=image.get('title'),
-                pereval=pereval[0]
+            # create all instances in DB
+            # get or create returns tuple: (object, created -> True, False)
+            coords = Coords.objects.get_or_create(
+                latitude=data.get('coords').get('latitude'),
+                longtitude=data.get('coords').get('longtitude'),
+                height=data.get('coords').get('height')
             )
+
+            user = Users.objects.get_or_create(
+                name=data.get('user').get('name'),
+                fam=data.get('user').get('fam'),
+                otc=data.get('user').get('otc'),
+                email=data.get('user').get('email'),
+                phone=data.get('user').get('phone')
+            )
+
+            pereval = PerevalAdded.objects.get_or_create(
+                beautyTitle=data.get('beauty_title', 'пер. '),
+                title=data.get('title'),
+                other_titles=data.get('other_titles'),
+                connect=data.get('connect'),
+                add_time=data.get('add_time'),
+                coords=coords[0],
+                level_winter=data.get('level').get('winter'),
+                level_summer=data.get('level').get('summer'),
+                level_autumn=data.get('level').get('autumn'),
+                level_spring=data.get('level').get('spring'),
+                user=user[0],
+                status='new'
+            )
+
+            for image in data.get('images'):
+                PerevalImages.objects.get_or_create(
+                    img=image.get('data'),
+                    title=image.get('title'),
+                    pereval=pereval[0]
+                )
 
     # catch errors and return corresponding status code
     except ValidationError:
@@ -96,7 +107,7 @@ def submitData(request):                            # base post method for addin
             'message': 'Не хватает полей или поля заполнены некорректно',
             'id': None
         }
-        return HttpResponse(content=json.dumps(res), status=400)
+        return HttpResponse(content=json.dumps(res, ensure_ascii=False), status=400)
 
     except Exception:
         res = {
@@ -104,7 +115,7 @@ def submitData(request):                            # base post method for addin
             'message': 'Ошибка подключения к базе данных',
             'id': None
         }
-        return HttpResponse(content=json.dumps(res), status=500)
+        return HttpResponse(content=json.dumps(res, ensure_ascii=False), status=500)
 
     else:
         res = {
@@ -112,7 +123,7 @@ def submitData(request):                            # base post method for addin
             'message': None,
             'id': pereval[0].id
         }
-        return HttpResponse(content=json.dumps(res), status=200)
+        return HttpResponse(content=json.dumps(res, ensure_ascii=False), status=200)
 
 
 @csrf_exempt
@@ -134,7 +145,7 @@ def get_or_patch_data(request, pk):                 # get or patch data if statu
                     'state': 0,
                     'message': 'Нельзя изменить перевалы, у которых статус отличен от "Новое"'
                 }
-                return HttpResponse(content=json.dumps(res), status=400)
+                return HttpResponse(content=json.dumps(res, ensure_ascii=False), status=400)
 
             # alter neccessary fields, if not in request then leave the same
             if new_coords := data.get('coords'):
@@ -180,22 +191,33 @@ def get_or_patch_data(request, pk):                 # get or patch data if statu
             'state': 0,
             'message': 'Поля заполнены некорректно'
         }
-        return HttpResponse(content=json.dumps(res), status=400)
+        return HttpResponse(content=json.dumps(res, ensure_ascii=False), status=400)
 
     except Exception:                               # mainly DB errors
         res = {
             'state': 0,
             'message': 'Ошибка подключения к базе данных'
         }
-        return HttpResponse(content=json.dumps(res), status=500)
+        return HttpResponse(content=json.dumps(res, ensure_ascii=False), status=500)
 
     else:
         res = {
             'state': 1,
-            'message': None
+            'message': 'Все норм'
         }
-        return HttpResponse(content=json.dumps(res), status=200)
+        return HttpResponse(content=json.dumps(res, ensure_ascii=False), status=200)
 
 
-def get_user_pervals_list(request):                 # return list of all user added passes
-    pass
+def get_user_pervals_list(request, email):                 # return list of all user added passes
+    try:
+        perevals = PerevalAdded.objects.filter(user__email=email)
+        data = serialize('json', perevals)
+
+        return HttpResponse(content=data, status=200)
+
+    except Exception:                               # mainly DB errors
+        res = {
+            'state': 0,
+            'message': 'Ошибка подключения к базе данных'
+        }
+        return HttpResponse(content=json.dumps(res, ensure_ascii=False), status=500)

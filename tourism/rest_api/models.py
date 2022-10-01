@@ -73,3 +73,13 @@ class Users(models.Model):                                  # for storing app us
     otc = models.CharField(max_length=30, null=True)
     email = models.CharField(max_length=50, unique=True)
     phone = models.CharField(max_length=30, null=True)
+
+    def natural_key(self):                                  # for beautiful serialization
+        user = {
+            'name': self.name,
+            'fam': self.fam,
+            'otc': self.otc,
+            'email': self.email,
+            'phone': self.phone
+        }
+        return user

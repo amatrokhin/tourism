@@ -1,6 +1,5 @@
 from django.urls import path
-from .views import submitData, get_or_patch_data, get_user_pervals_list
-
+from .views import submitData, get_or_patch_data
 
 urlpatterns = [
     path('submitData/', submitData, name='submit_data'),

@@ -130,7 +130,7 @@ def submitData(request):                            # base post method for addin
 def get_or_patch_data(request, pk):                 # get or patch data if status == 'new'
     try:
         if request.method == 'GET':
-            data = serialize('json', [PerevalAdded.objects.get(pk=pk)])
+            data = serialize('json', [PerevalAdded.objects.get(pk=pk)], use_natural_foreign_keys=True)
             return HttpResponse(content=data, status=200)
 
         elif request.method == 'PATCH':
@@ -206,18 +206,3 @@ def get_or_patch_data(request, pk):                 # get or patch data if statu
             'message': 'Все норм'
         }
         return HttpResponse(content=json.dumps(res, ensure_ascii=False), status=200)
-
-
-def get_user_pervals_list(request, email):                 # return list of all user added passes
-    try:
-        perevals = PerevalAdded.objects.filter(user__email=email)
-        data = serialize('json', perevals)
-
-        return HttpResponse(content=data, status=200)
-
-    except Exception:                               # mainly DB errors
-        res = {
-            'state': 0,
-            'message': 'Ошибка подключения к базе данных'
-        }
-        return HttpResponse(content=json.dumps(res, ensure_ascii=False), status=500)

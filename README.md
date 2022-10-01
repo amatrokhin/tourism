@@ -1,97 +1,120 @@
-api service for tourist mobile app
-altered DB by the following model
+В данном репозитории реализован REST API проект. С помощью данного API можно создавать записи в
+таблицах о перевалах, координатах, изображениях перевалов и пользователях. Также в данном проекте 
+присутствуют модели, описывающие активности и области нахождения перевалов, но методы для работы
+с этими таблицами не присутствуют.
 
-    BEGIN;
+Все использованные библиотеки, необходимые для работы проекта находятся в файле requirements.txt.
+Все необходимые переменные для работы помещаются в файл .env, который по умолчанию должен находится
+в одной директории с файлом manage.py (директория tourism). Для указания другого пути неодходимо
+изменить переменную 'env_path' в файле settings.py.
 
-    CREATE TYPE status_codes AS ENUM ('new', 'pending', 'accepted', 'rejected');
+Для корректной работы в файле .env должны находится следующие переменные 
+   
+    SECRET_KEY - секретный ключь Django
+    FSTR_DB_HOST - адрес базы данных
+    FSTR_DB_PORT - порт бызы данных
+    FSTR_DB_LOGIN - логин для подключения к базе данных
+    FSTR_DB_PASS - пароль для подключения к базе данных
+
+
+В проекте имеется реализация с помощью djangorestframework. Она добавлена для удобства отслеживания
+изменений в процессе разработки и может быть убрана. Таким образом можно убрать все:
+        
+    Viewsset, файл Serializer, router из файла tourism\urls.py
+    и соответствующие пути (api/, api-auth/) оттуда же
+
+Рабочими являются два метода: submitData и get_or_patсh_data.
+
+Для вызова метода submitData необходимо осуществить POST запрос по адресу 
+
+    http://127.0.0.1:8000/submitData/
+
+или GET запрос по адресу
     
-    CREATE TYPE levels AS ENUM('1А', '1Б', '2А', '2Б', '3А', '3Б') 
-    
-    CREATE TABLE IF NOT EXISTS public.pereval_added
-    (
-        date_added timestamp without time zone NOT NULL,
-        beautyTitle varchar(10) DEFAULT "пер. ",
-        title varchar(50) NOT NULL,
-        other_titles varchar(50)[],
-        "connect" varchar(50)[],
-        add_time timestamp without time zone NOT NULL,
-        coord_id integer NOT NULL,
-        level_winter levels,
-        level_summer levels,
-        level_autumn levels,
-        level_spring levels,
-        id bigserial NOT NULL,
-        user_id integer,
-        status status_codes
-        PRIMARY KEY (id)
-    );
-    
-    CREATE TABLE IF NOT EXISTS public.pereval_areas
-    (
-        id_parent integer NOT NULL,
-        title varchar(50) NOT NULL,
-        id serial NOT NULL,
-        PRIMARY KEY (id)
-    );
-    
-    CREATE TABLE IF NOT EXISTS public.pereval_images
-    (
-        date_added timestamp without time zone DEFAULT now(),
-        img bytea NOT NULL,
-        title varchar(50) NOT NULL,
-        pereval_id integer NOT NULL,
-        id serial NOT NULL,
-        PRIMARY KEY (id)
-    );
-    
-    CREATE TABLE IF NOT EXISTS public.spr_activities_types
-    (
-        title varchar(50),
-        id serial NOT NULL,
-        PRIMARY KEY (id)
-    );
-    
-    CREATE TABLE IF NOT EXISTS public.Coords
-    (
-        latitude real,
-        longtitude real,
-        height integer,
-        id serial NOT NULL,
-        PRIMARY KEY (id)
-    );
-    
-    CREATE TABLE IF NOT EXISTS public.users
-    (
-        id bigserial NOT NULL,
-        name varchar(30),
-        fam varchar(30),
-        otc varchar(30),
-        email varchar(30) NOT NULL,
-        PRIMARY KEY (id),
-        CONSTRAINT email UNIQUE (email)
-    );
-    
-    ALTER TABLE IF EXISTS public.pereval_added
-        ADD CONSTRAINT coord_id FOREIGN KEY (coord_id)
-        REFERENCES public.Coords (id) MATCH SIMPLE
-        ON UPDATE NO ACTION
-        ON DELETE SET NULL
-        NOT VALID;
-    
-    
-    ALTER TABLE IF EXISTS public.pereval_added
-        ADD CONSTRAINT user_id FOREIGN KEY (user_id)
-        REFERENCES public.users (id) MATCH SIMPLE
-        ON UPDATE NO ACTION
-        ON DELETE SET NULL
-        NOT VALID;
-    
-    
-    ALTER TABLE IF EXISTS public.pereval_images
-        ADD CONSTRAINT pereval_id FOREIGN KEY (pereval_id)
-        REFERENCES public.pereval_added (id) MATCH SIMPLE
-        ON UPDATE NO ACTION
-        ON DELETE CASCADE
-        NOT VALID;
-    
-    END;
+    http://127.0.0.1:8000/submitData/?user__email=<email>
+
+В первом случае в теле POST запроса передается JSON, имеющий следующий вид
+        
+    {
+        "beauty_title": "пер. ",
+        "title": "Пхия",
+        "other_titles": "Триев",
+        "connect": "",
+        "add_time": "2021-09-22 13:18:13",
+        "user": {
+            "email": "ivan@mail.ru",
+            "fam": "Иванов",
+            "name": "Иван",
+            "otc": "Васильевич",
+            "phone": "+7 800 555 35 35"
+        },
+        "coords": {
+            "latitude": "45.3842",
+            "longtitude": "7.1525",
+            "height": "1200"
+        },
+        "level": {
+            "winter": "",
+            "summer": "1А",
+            "autumn": "1А",
+            "spring": ""
+        },
+        "images": [{data:"<картинка1>", title:"Седловина"}, {data:"<картинка>", title:"Подъём"}]
+    }
+
+Запрос возвращает JSON со статусом операции, сообщением об ошибке, если она возникла и
+идентификатором созданной записи в виде
+
+    {"status": int, "message": str, "id": int}
+
+В случае же GET запроса возвращается JSON всех записей перевалов, созданных юзером с <email>
+(email должен быть уникальным по требованию данного API, так что набор определяется однозначно)
+
+Метод get_or_path_data вызывается по адресу
+
+    http://127.0.0.1:8000/submitData/<id>/
+
+Если используется метод GET, то будет получен JSON с моделью перевала. JSON имеет все поля,
+которые есть у модели. Если поле модели представляет из себя ForeignKey, то и это поле является
+вложенной конструкцией модели, на которую ссылается поле исходной модели. Пример:
+
+    [
+        {
+            "model": "rest_api.perevaladded",
+            "pk": 1,
+            "fields": {
+                "beautyTitle": "пер.",
+                "title": "Пхия",
+                "other_titles": "Триев",
+                "connect": null,
+                "date_added": "2022-10-01T11:31:37.003Z",
+                "add_time": "2021-09-22 13:18:13",
+                "coords": {
+                    "latitude": "45.3842",
+                    "longtitude": "7.1525",
+                    "height": "1200"
+                },
+                "level_winter": null,
+                "level_summer": "1А",
+                "level_autumn": "1А",
+                "level_spring": null,
+                "user": {
+                    "name": "Василий",
+                    "fam": "Пупкин",
+                    "otc": "Иванович",
+                    "email": "example@mail.ru",
+                    "phone": "+7 555 55 55"
+                },
+                "status": "new"
+            }
+        }
+    ]
+
+Заметим, что это список из одного словаря.
+
+Если переход по последней ссылке осуществляется с использованием PATCH метода, то в теле
+запроса необходимо передать JSON, как для метода POST выше. При этом стоит отметить, что если
+в переданном JSON поля не передаются явно, то они не изменяются. В случае полей с картинками,
+можно удалить лишьние, если передать список меньшей длины, чем имеется записей картинок в базе.
+Так, можно удалить все картинки перевала, если передать пустой список. Данные картинки передаются
+в поле 'data' в виде битов.

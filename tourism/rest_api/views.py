@@ -203,6 +203,6 @@ def get_or_patch_data(request, pk):                 # get or patch data if statu
     else:
         res = {
             'state': 1,
-            'message': 'Все норм'
+            'message': None
         }
         return HttpResponse(content=json.dumps(res, ensure_ascii=False), status=200)

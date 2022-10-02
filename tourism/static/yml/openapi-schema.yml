@@ -1,0 +1,328 @@
+openapi: 3.0.2
+info:
+  title: ''
+  version: ''
+paths:
+  /submitData/:
+    get:
+      operationId: listPerevals
+      description: 'return list of passes of an author with <email>'
+      parameters:
+      - name: user__email
+        required: true
+        in: query
+        description: email identifying an author of passes
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Pereval'
+          description: ''
+        '400':
+          content:
+            application\json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 400
+                  message:
+                    type: string
+                    example: 'String'
+                  id:
+                    type: integer
+                    example: 1
+          description: 'exeptions related to wrong fields'
+        '500':
+          content:
+            application\json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 400
+                  message:
+                    type: string
+                    example: 'String'
+                  id:
+                    type: integer
+                    example: 1
+          description: 'exeptions related to DB'
+      tags:
+      - perevals
+    post:
+      operationId: createPereval
+      descripton: 'creates an instance of a pass'
+      parameters: []
+      requestBody:
+        content:
+          application\json:
+            schema:
+              $ref: '#/components/schemas/Pereval'
+      responses:
+        '200':
+          content:
+            application\json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 400
+                  message:
+                    type: null
+                  id:
+                    type: integer
+                    example: 1
+          description: ''
+        '400':
+          content:
+            application\json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 400
+                  message:
+                    type: string
+                    example: 'String'
+                  id:
+                    type: null
+          description: 'exeptions related to wrong field'
+        '500':
+          content:
+            application\json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 400
+                  message:
+                    type: string
+                    example: 'String'
+                  id:
+                    type: null
+          description: 'exeptions related to DB'
+      tags:
+        - perevals
+  /submitData/{id}:
+    get:
+      operationId: retrievePereval
+      description: ''
+      parameters:
+      - name: id
+        in: path
+        requered: true
+        description: A inique integer value identifying a pass
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pereval'
+          description: ''
+        '400':
+          content:
+            application\json:
+              schema:
+                type: object
+                properties:
+                  state:
+                    type: integer
+                    example: 1
+                  message:
+                    type: string
+                    example: 'String'
+          description: 'exeptions related to fields'
+        '500':
+          content:
+            application\json:
+              schema:
+                type: object
+                properties:
+                  state:
+                    type: integer
+                    example: 1
+                  message:
+                    type: string
+                    example: 'String'
+          description: 'exeptions related to DB'
+      tags:
+      - perevals
+    patch:
+      operationId: partialUpdatePereval
+      description: ''
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: A unique integer value identifying this author
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Pereval'
+      responses:
+        '200':
+          content:
+            application\json:
+              schema:
+                type: object
+                properties:
+                  state:
+                    type: integer
+                    example: 400
+                  message:
+                    type: null
+          description: ''
+        '400':
+          content:
+            application\json:
+              schema:
+                type: object
+                properties:
+                  state:
+                    type: integer
+                    example: 0
+                  message:
+                    type: string
+                    example: 'String'
+          description: 'exeptions related to fields'
+        '500':
+          content:
+            application\json:
+              schema:
+                type: object
+                properties:
+                  state:
+                    type: integer
+                    example: 0
+                  message:
+                    type: string
+                    example: 'String'
+          description: 'exeptions related to DB'
+      tags:
+      - perevals
+components:
+  schemas:
+    Pereval:
+      type: object
+      properties:
+        id:
+          type: integer
+        beautyTitle:
+          type: string
+        title:
+          type: string
+        other_titles:
+          type: string
+        connect:
+          type: string
+        date_added:
+          type: string
+          format: date-time
+        add_time:
+          type: string
+        coords:
+          $ref: '#/components/schemas/Coords'
+        level_winter:
+          type: string
+          enum:
+          - '1А'
+          - '1Б'
+          - '2А'
+          - '2Б'
+          - '3А'
+          - '3Б'
+        level_summer:
+          type: string
+          enum:
+          - '1А'
+          - '1Б'
+          - '2А'
+          - '2Б'
+          - '3А'
+          - '3Б'
+        level_autumn:
+          type: string
+          enum:
+          - '1А'
+          - '1Б'
+          - '2А'
+          - '2Б'
+          - '3А'
+          - '3Б'
+        level_spring:
+          type: string
+          enum:
+          - '1А'
+          - '1Б'
+          - '2А'
+          - '2Б'
+          - '3А'
+          - '3Б'
+        user:
+          $ref: '#/components/schemas/Users'
+        status:
+          type: string
+          enum:
+          - 'new'
+          - 'pending'
+          - 'accepted'
+          - 'rejected'
+      required:
+      - id
+      - beautyTitle
+      - title
+      - date_added
+      - add_time
+      - status
+    Coords:
+      type: object
+      properties:
+        id:
+          type: integer
+        longtitude:
+          type: number
+          format: float
+        latitude:
+          type: number
+          format: float
+        height:
+          type: integer
+      required:
+      - id
+      - longtitude
+      - latitude
+      - height
+    Users:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        fam:
+          type: string
+        otc:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+      required:
+      - id
+      - email

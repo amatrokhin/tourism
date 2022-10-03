@@ -151,7 +151,7 @@ def get_or_patch_data(request, pk):                 # get or patch data if statu
 
             # alter neccessary fields, if not in request then leave the same
             if new_coords := data.get('coords'):
-                old_coords = Coords.objects.get(pk=pereval.coords.id)
+                old_coords = pereval.coords
 
                 old_coords.longtitude = new_coords.get('longtitude', old_coords.longtitude)
                 old_coords.latitude = new_coords.get('latitude', old_coords.latitude)

@@ -45,6 +45,7 @@ class UsersViewset(viewsets.ModelViewSet):
     serializer_class = UsersSerializer
 
 
+# this decorator is for testing via postman, remove in production
 @csrf_exempt
 def submitData(request):                            # base post method for adding passes and get for returning them
     try:
@@ -126,6 +127,7 @@ def submitData(request):                            # base post method for addin
         return HttpResponse(content=json.dumps(res, ensure_ascii=False), status=200)
 
 
+# this decorator is for testing via postman, remove in production
 @csrf_exempt
 def get_or_patch_data(request, pk):                 # get or patch data if status == 'new'
     try:
@@ -162,9 +164,9 @@ def get_or_patch_data(request, pk):                 # get or patch data if statu
 
                 for i, elem in enumerate(old_images):
                     if i <= len(new_images):
-                        elem.data = new_images.get('data', elem.data)
-                        elem.title = new_images.get('title', elem.title)
-                        elem.date_added = new_images.get('date_added', elem.date_added)
+                        elem.data = new_images[i].get('data', elem.data)
+                        elem.title = new_images[i].get('title', elem.title)
+                        elem.date_added = new_images[i].get('date_added', elem.date_added)
 
                         elem.save()
 
